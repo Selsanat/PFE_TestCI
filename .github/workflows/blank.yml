@@ -1,7 +1,5 @@
 # This is a basic workflow to help you get started with Actions
-
 name: Building CI on Unity for Team 1 PFE
-
 # Controls when the workflow will run
 on:
   # Triggers the workflow on push or pull request events but only for the "main" branch
@@ -9,29 +7,48 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
-
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Set start time for build naming
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Set Start Time
         run: echo "START_TIME=$(TZ=":Europe/Paris" date +'%Y_%m_%d_%H_%M_%S')" >> $GITHUB_ENV
         
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checking out Git
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      # Get the date of the last successful build
+      - name: Get last successful build date
+        id: last-build
+        run: |
+          echo "LAST_BUILD_DATE=$(git log --pretty=format:'%cd' -1 --date=iso)" >> $GITHUB_ENV
+      
+      # Get list of commits since last build
+      - name: Get commits since last build
+        id: commits
+        run: |
+          COMMITS=$(git log --pretty=format:'[%h](%s) - %an' --since="${{ env.LAST_BUILD_DATE }}")
+          echo "COMMITS<<EOF" >> $GITHUB_ENV
+          echo "$COMMITS" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+          
+      # Track build execution time
+      - name: Build execution time - start
+        id: build-execution-time-start
+        run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
         
       # Gives the Unity License and builds
       - name: Registering License
+        id: project-build
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -42,33 +59,66 @@ jobs:
           buildsPath: Builds
           targetPlatform: StandaloneWindows64
           allowDirtyBuild: true
-
+          
+      # Calculate build execution time
+      - name: Build execution time - end
+        id: build-execution-time
+        run: |
+          end_time=$(date +%s)
+          duration=$((end_time - ${{ env.start_time }}))
+          echo "duration=$duration" >> $GITHUB_OUTPUT
+          
       # Stores a build artefact
       - name: Storing Build Artefact
+        id: build-upload
         uses: actions/upload-artifact@v4.3.3
         with:
           name: Build_StandaloneWindows64_${{ env.START_TIME }}
           path: Builds/StandaloneWindows64
           retention-days: 14 #Day before artifact being destroyed
           
-      # Compress the build folder for Discord attachment
-      - name: Compress build folder
+      # Get artifact URL
+      - name: Get artifact URL
         run: |
-          cd Builds/StandaloneWindows64
-          zip -r ../../Build_StandaloneWindows64_${{ env.START_TIME }}.zip .
-          cd ../..
-      
-      # Send build artifact to Discord with embed in a single message
-      - name: Send Discord notification with file
+          echo "ARTIFACT_URL=https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts" >> $GITHUB_ENV
+          
+      # Define build status
+      - name: Set build status
+        id: build-status
+        run: |
+          if [ "${{ steps.project-build.outputs.engineExitCode }}" -eq "0" ]; then
+            echo "STATUS=Réussie ✅" >> $GITHUB_ENV
+            echo "COLOR=65280" >> $GITHUB_ENV
+          else
+            echo "STATUS=Échouée ❌" >> $GITHUB_ENV
+            echo "COLOR=16711680" >> $GITHUB_ENV
+          fi
+          
+      # Send Discord notification
+      - name: Send Discord notification
         uses: tsickert/discord-webhook@v6.0.0
         with:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Unity Build Bot"
           avatar-url: "https://unity.com/favicon.ico"
-          embed-title: "Nouveau build Unity disponible"
-          embed-description: "Build généré le ${{ env.START_TIME }} pour Team 1 PFE\nCommit: ${{ github.event.head_commit.message }}\nAuteur: ${{ github.event.head_commit.author.name }}"
-          embed-color: 65280
-          filename: Build_StandaloneWindows64_${{ env.START_TIME }}.zip
+          embed-title: "Build Unity ${{ env.STATUS }}"
+          embed-description: |
+            **Détails de la build:**
+            - **Nom:** Build_StandaloneWindows64_${{ env.START_TIME }}
+            - **Plateforme:** StandaloneWindows64
+            - **Durée d'exécution:** ${{ steps.build-execution-time.outputs.duration }} secondes
+            - **Code de sortie:** ${{ steps.project-build.outputs.engineExitCode }}
+            
+            **Commits depuis la dernière build:**
+            ${{ env.COMMITS }}
+            
+            **Liens Utiles:**
+            - [Télécharger la build](${{ env.ARTIFACT_URL }})
+            - [Logs Unity](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+            - [Détails du workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
+          embed-color: ${{ env.COLOR }}
+          embed-timestamp: true
+          embed-footer-text: "Team 1 PFE"
           
       # Cache to make next builds faster
       - name: Caching
@@ -79,7 +129,7 @@ jobs:
           restore-keys: |
             Library-MyProjectName-
             Library-
-            
+      
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
