@@ -22,6 +22,10 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
+      # Set start time for build naming
+      - name: Set Start Time
+        run: echo "START_TIME=$(TZ=":Europe/Paris" date +'%Y_%m_%d_%H_%M_%S')" >> $GITHUB_ENV
+        
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - name: Checking out Git
         uses: actions/checkout@v4
@@ -34,14 +38,37 @@ jobs:
           UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
           UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
         with:
-          targetPlatform: WebGL
+          buildName: Build_StandaloneWindows64_${{ env.START_TIME }}
+          buildsPath: Builds
+          targetPlatform: StandaloneWindows64
+          allowDirtyBuild: true
 
       # Stores a build artefact
       - name: Storing Build Artefact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v4.3.3
         with:
-          name: Build
-          path: build
+          name: Build_StandaloneWindows64_${{ env.START_TIME }}
+          path: Builds/StandaloneWindows64
+          retention-days: 14 #Day before artifact being destroyed
+          
+      # Compress the build folder for Discord attachment
+      - name: Compress build folder
+        run: |
+          cd Builds/StandaloneWindows64
+          zip -r ../../Build_StandaloneWindows64_${{ env.START_TIME }}.zip .
+          cd ../..
+      
+      # Send build artifact to Discord with embed in a single message
+      - name: Send Discord notification with file
+        uses: tsickert/discord-webhook@v6.0.0
+        with:
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          username: "Unity Build Bot"
+          avatar-url: "https://unity.com/favicon.ico"
+          embed-title: "Nouveau build Unity disponible"
+          embed-description: "Build généré le ${{ env.START_TIME }} pour Team 1 PFE\nCommit: ${{ github.event.head_commit.message }}\nAuteur: ${{ github.event.head_commit.author.name }}"
+          embed-color: 65280
+          filename: Build_StandaloneWindows64_${{ env.START_TIME }}.zip
           
       # Cache to make next builds faster
       - name: Caching
@@ -53,21 +80,6 @@ jobs:
             Library-MyProjectName-
             Library-
             
-      # Compress the build folder for Discord attachment
-      - name: Compress build folder
-        run: |
-          cd build
-          zip -r ../build.zip .
-          cd ..
-      
-      # Send build artifact to Discord via webhook
-      - name: Send Discord notification
-        env:
-          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
-        run: |
-          curl -F "file=@build.zip" $WEBHOOK_URL \
-          -F "payload_json={\"content\":\"Nouvel artéfact de build disponible pour Team 1 PFE! Commit: ${{ github.event.head_commit.message }}\", \"username\":\"Unity Build Bot\"}"
-          
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
