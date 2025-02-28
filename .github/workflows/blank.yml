@@ -36,7 +36,7 @@ jobs:
       - name: Get commits since last build
         id: commits
         run: |
-          COMMITS=$(git log --pretty=format:'[%h](%s) - %an' --since="${{ env.LAST_BUILD_DATE }}")
+          COMMITS=$(git log --pretty=format:'[%h](https://github.com/${{ github.repository }}/commit/%h) - %s - %an' --since="${{ env.LAST_BUILD_DATE }}")
           echo "COMMITS<<EOF" >> $GITHUB_ENV
           echo "$COMMITS" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
@@ -98,10 +98,10 @@ jobs:
       - name: Send Discord notification
         uses: tsickert/discord-webhook@v6.0.0
         with:
-          webhook-url: ${{ secrets.WEBHOOK_URL }}
+          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
           username: "Unity Build Bot"
           avatar-url: "https://unity.com/favicon.ico"
-          embed-title: "Build Unity ${{ env.STATUS }}"
+          embed-title: "Build Unity ${{ env.STATUS }} - ${{ env.START_TIME }}"
           embed-description: |
             **Détails de la build:**
             - **Nom:** Build_StandaloneWindows64_${{ env.START_TIME }}
@@ -117,8 +117,7 @@ jobs:
             - [Logs Unity](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
             - [Détails du workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           embed-color: ${{ env.COLOR }}
-          embed-timestamp: true
-          embed-footer-text: "Team 1 PFE"
+          embed-footer-text: "Team 1 PFE - Build générée le ${{ env.START_TIME }}"
           
       # Cache to make next builds faster
       - name: Caching
