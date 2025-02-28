@@ -98,7 +98,7 @@ jobs:
       - name: Send Discord notification
         uses: tsickert/discord-webhook@v6.0.0
         with:
-          webhook-url: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Unity Build Bot"
           avatar-url: "https://unity.com/favicon.ico"
           embed-title: "Build Unity ${{ env.STATUS }} - ${{ env.START_TIME }}"
