@@ -23,10 +23,11 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - name : Checking out Git
+      - name: Checking out Git
         uses: actions/checkout@v4
+        
       # Gives the Unity License and builds
-      - name : Registering License
+      - name: Registering License
         uses: game-ci/unity-builder@v4
         env:
           UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
@@ -36,13 +37,14 @@ jobs:
           targetPlatform: WebGL
 
       # Stores a build artefact
-      - name : Storing Build Artefact
+      - name: Storing Build Artefact
         uses: actions/upload-artifact@v3
         with:
           name: Build
           path: build
+          
       # Cache to make next builds faster
-      - name : Caching
+      - name: Caching
         uses: actions/cache@v3
         with:
           path: path/to/your/project/Library
@@ -50,6 +52,22 @@ jobs:
           restore-keys: |
             Library-MyProjectName-
             Library-
+            
+      # Compress the build folder for Discord attachment
+      - name: Compress build folder
+        run: |
+          cd build
+          zip -r ../build.zip .
+          cd ..
+      
+      # Send build artifact to Discord via webhook
+      - name: Send Discord notification
+        env:
+          WEBHOOK_URL: ${{ secrets.WEBHOOK_URL }}
+        run: |
+          curl -F "file=@build.zip" $WEBHOOK_URL \
+          -F "payload_json={\"content\":\"Nouvel artéfact de build disponible pour Team 1 PFE! Commit: ${{ github.event.head_commit.message }}\", \"username\":\"Unity Build Bot\"}"
+          
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
