@@ -128,5 +128,5 @@ jobs:
             - [Télécharger la build](${{ env.BUILD_ARTIFACT_URL }})
             - [Détails du workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           embed-color: ${{ env.COLOR }}
-          embed-footer-text: "Team 1 PFE - Build générée le ${{ env.START_TIME }}"
+          embed-footer-text: "Team 1 PFE - Build générée le ${{ env.START_TIME }}" 
 
