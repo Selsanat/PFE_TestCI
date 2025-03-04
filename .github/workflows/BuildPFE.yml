@@ -135,8 +135,8 @@ jobs:
         uses: actions/cache@v3
         with:
           path: ${{ github.workspace }}/Library
-          key: Library-MyProjectName-TargetPlatform
+          key: Library-${{ runner.os }}-${{ hashFiles('**/ProjectSettings/ProjectVersion.txt', '**/Packages/packages-lock.json') }}
           restore-keys: |
-            Library-MyProjectName-
+            Library-${{ runner.os }}-
             Library-
         if: exists('${{ github.workspace }}/Library')
