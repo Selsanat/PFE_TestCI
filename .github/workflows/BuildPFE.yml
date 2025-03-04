@@ -74,13 +74,6 @@ jobs:
       - name: List files in Builds directory (Debug)
         run: ls -R ${{ github.workspace }}/Builds
 
-      - name: Upload Unity Build Logs
-        uses: actions/upload-artifact@v4.3.3
-        with:
-          name: ${{ env.BUILD_NAME }}_Logs
-          path: ${{ github.workspace }}/Builds/StandaloneWindows64/*.log
-          if-no-files-found: warn
-
       - name: Get build artifact URL
         id: build-artifact-url
         run: |
