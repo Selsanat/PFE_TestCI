@@ -21,6 +21,7 @@ jobs:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Abbuild 🐒🍌"
           avatar-url: "https://media.discordapp.net/attachments/1314208057806426152/1346476105367814228/Abbu_3.png?ex=67c85317&is=67c70197&hm=c7c88ce931b72cf8e68da0792d2091a2e4b5f2e57e348f87d3ed36c5f1b792b5&=&format=webp&quality=lossless"
+          embed-thumbnail-url: "https://cinefilms-planet.fr/wp-content/uploads/2015/09/abu-personnage-aladdin-04.jpg"
           embed-title: "Build Unity ${{ env.STATUS }}"
           embed-description: |
             **Détails de la build:**
