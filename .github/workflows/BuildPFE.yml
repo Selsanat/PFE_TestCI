@@ -42,7 +42,7 @@ jobs:
           embed-description: |
             **Détails de la build:**
             - **Nom:** ${{ env.BUILD_NAME }}
-            - **Plateforme:** StandaloneWindows64
+            - **Plateforme:** StandaloneWindows64 
             - **Durée d'exécution:** ${{ steps.build-execution-time.outputs.duration }} secondes
             - **Code de sortie:** ${{ steps.project-build.outputs.engineExitCode }}
 
