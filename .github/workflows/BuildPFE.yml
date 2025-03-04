@@ -134,9 +134,9 @@ jobs:
       - name: Caching
         uses: actions/cache@v3
         with:
-          path: ${{ github.workspace }}/${{ env.PROJECT_NAME }}/Library  # Utilisation de la variable d'environnement
-          key: Library-${{ env.PROJECT_NAME }}-TargetPlatform  # Utilisation de la variable d'environnement
+          path: ${{ github.workspace }}/Library
+          key: Library-MyProjectName-TargetPlatform
           restore-keys: |
-            Library-${{ env.PROJECT_NAME }}-
+            Library-MyProjectName-
             Library-
-        if: exists('${{ github.workspace }}/${{ env.PROJECT_NAME }}/Library')
+        if: exists('${{ github.workspace }}/Library')
