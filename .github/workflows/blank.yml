@@ -16,7 +16,7 @@ jobs:
 
     steps:
       - name: Set Start Time
-        run: echo "START_TIME=$(TZ=":Europe/Paris" date +'%Y_%m_%d_%H_%M')" >> $GITHUB_ENV
+        run: echo "START_TIME=$(TZ=":Europe/Paris" date +'%Y-%m-%d_%H-%M')" >> $GITHUB_ENV
 
       - name: Checking out Git
         uses: actions/checkout@v4
@@ -37,7 +37,7 @@ jobs:
           echo "EOF" >> $GITHUB_ENV
 
       - name: Set Build Name
-        run: echo "BUILD_NAME=PFE1_StandaloneWindows64_${{ env.START_TIME }}" >> $GITHUB_ENV
+        run: echo "BUILD_NAME=PFE1_WIN_${{ env.START_TIME }}" >> $GITHUB_ENV
 
       - name: Build execution time - start
         id: build-execution-time-start
@@ -101,10 +101,10 @@ jobs:
         id: build-status
         run: |
           if [ "${{ steps.project-build.outputs.engineExitCode }}" -eq "0" ]; then
-            echo "STATUS=Réussie ✅" >> $GITHUB_ENV
+            echo "STATUS=Réussie ✅ 🙉" >> $GITHUB_ENV
             echo "COLOR=65280" >> $GITHUB_ENV
           else
-            echo "STATUS=Échouée ❌" >> $GITHUB_ENV
+            echo "STATUS=Échouée ❌ 🙊" >> $GITHUB_ENV
             echo "COLOR=16711680" >> $GITHUB_ENV
           fi
 
@@ -112,7 +112,7 @@ jobs:
         uses: tsickert/discord-webhook@v6.0.0
         with:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
-          username: "Unity Build Bot"
+          username: "Abbuild 🐒🍌"
           avatar-url: "https://unity.com/favicon.ico"
           embed-title: "Build Unity ${{ env.STATUS }} - ${{ env.START_TIME }}"
           embed-description: |
@@ -140,8 +140,3 @@ jobs:
             Library-${{ env.PROJECT_NAME }}-
             Library-
         if: exists('${{ github.workspace }}/${{ env.PROJECT_NAME }}/Library')
-
-      - name: Run a multi-line script
-        run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
