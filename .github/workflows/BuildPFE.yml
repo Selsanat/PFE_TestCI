@@ -15,13 +15,29 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+
+      - name: Set Random Image URL
+        id: random-image
+        run: |
+          IMAGES=(
+            "https://i.pinimg.com/originals/63/b7/77/63b7778a45cac5a7a6e040b9486e1947.gif"
+            "https://pa1.aminoapps.com/6415/0ef06d84eaad1dd5a9eec4ce34eef24cabafff53_hq.gif"
+            "https://i.gifer.com/1Qs4.gif"
+            "https://i.pinimg.com/originals/09/26/01/09260106b02bdfecddb010cc8022300e.gif"
+            "https://i.gifer.com/3FGw.gif"
+            "https://ww2.kqed.org/pop/wp-content/uploads/sites/12/2015/12/02-smile-abu.gif"
+
+          )
+          RANDOM_IMAGE=${IMAGES[$((RANDOM % ${#IMAGES[@]}))]}
+          echo "random_image_url=$RANDOM_IMAGE" >> $GITHUB_OUTPUT
+
       - name: Send Discord notification
         uses: tsickert/discord-webhook@v6.0.0
         with:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Abbuild 🐒🍌"
           avatar-url: "https://media.discordapp.net/attachments/1314208057806426152/1346476105367814228/Abbu_3.png?ex=67c85317&is=67c70197&hm=c7c88ce931b72cf8e68da0792d2091a2e4b5f2e57e348f87d3ed36c5f1b792b5&=&format=webp&quality=lossless"
-          embed-image-url: "https://i.pinimg.com/originals/63/b7/77/63b7778a45cac5a7a6e040b9486e1947.gif"
+          embed-image-url: ${{ steps.random-image.outputs.random_image_url }}
           embed-title: "Build Unity ${{ env.STATUS }}"
           embed-description: |
             **Détails de la build:**
