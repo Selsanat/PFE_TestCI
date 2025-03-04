@@ -43,7 +43,13 @@ jobs:
         id: build-execution-time-start
         run: echo "start_time=$(date +%s)" >> $GITHUB_ENV
 
-      - name: Registering License
+      - name: Caching
+        uses: actions/cache@v3
+        with:
+          path: Library
+          key: Library   
+
+      - name: Building Game
         id: project-build
         uses: game-ci/unity-builder@v4
         env:
@@ -124,12 +130,3 @@ jobs:
           embed-color: ${{ env.COLOR }}
           embed-footer-text: "Team 1 PFE - Build générée le ${{ env.START_TIME }}"
 
-      - name: Caching
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/Library
-          key: Library-${{ runner.os }}-${{ hashFiles('**/ProjectSettings/ProjectVersion.txt', '**/Packages/packages-lock.json') }}
-          restore-keys: |
-            Library-${{ runner.os }}-
-            Library-
-        if: exists('${{ github.workspace }}/Library')
