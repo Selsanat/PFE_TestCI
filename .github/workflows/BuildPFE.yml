@@ -114,7 +114,7 @@ jobs:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Abbuild 🐒🍌"
           avatar-url: "https://unity.com/favicon.ico"
-          embed-title: "Build Unity ${{ env.STATUS }} - ${{ env.START_TIME }}"
+          embed-title: "Build Unity ${{ env.STATUS }}"
           embed-description: |
             **Détails de la build:**
             - **Nom:** ${{ env.BUILD_NAME }}
