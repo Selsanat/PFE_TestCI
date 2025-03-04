@@ -49,19 +49,6 @@ jobs:
           path: Library
           key: Library   
 
-      - name: Building Game
-        id: project-build
-        uses: game-ci/unity-builder@v4
-        env:
-          UNITY_LICENSE: ${{ secrets.UNITY_LICENSE }}
-          UNITY_EMAIL: ${{ secrets.UNITY_EMAIL }}
-          UNITY_PASSWORD: ${{ secrets.UNITY_PASSWORD }}
-        with:
-          buildName: ${{ env.BUILD_NAME }}
-          buildsPath: Builds
-          targetPlatform: StandaloneWindows64
-          allowDirtyBuild: true
-
       - name: Build execution time - end
         id: build-execution-time
         run: |
@@ -112,7 +99,7 @@ jobs:
         with:
           webhook-url: ${{ secrets.WEBHOOK_URL }}
           username: "Abbuild 🐒🍌"
-          avatar-url: "https://unity.com/favicon.ico"
+          avatar-url: "https://media.discordapp.net/attachments/1314208057806426152/1346476105367814228/Abbu_3.png?ex=67c85317&is=67c70197&hm=c7c88ce931b72cf8e68da0792d2091a2e4b5f2e57e348f87d3ed36c5f1b792b5&=&format=webp&quality=lossless"
           embed-title: "Build Unity ${{ env.STATUS }}"
           embed-description: |
             **Détails de la build:**
