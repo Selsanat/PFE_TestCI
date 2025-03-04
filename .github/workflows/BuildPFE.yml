@@ -45,7 +45,7 @@ jobs:
             - **Plateforme:** StandaloneWindows64 
             - **Durée d'exécution:** ${{ steps.build-execution-time.outputs.duration }} secondes
             - **Code de sortie:** ${{ steps.project-build.outputs.engineExitCode }}
-
+ 
             **Commits depuis la dernière build:**
             ${{ env.COMMITS }}
 
