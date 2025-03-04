@@ -7,6 +7,9 @@ on:
     branches: [ "main" ]
   workflow_dispatch:
 
+env:
+  PROJECT_NAME: PFE_TestCI  # Définir le nom du projet comme variable d'environnement
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -68,12 +71,15 @@ jobs:
           path: Builds/StandaloneWindows64
           retention-days: 14
 
+      - name: List files in Builds directory (Debug)
+        run: ls -R ${{ github.workspace }}/Builds
+
       - name: Upload Unity Build Logs
         uses: actions/upload-artifact@v4.3.3
         with:
           name: ${{ env.BUILD_NAME }}_Logs
           path: ${{ github.workspace }}/Builds/StandaloneWindows64/*.log
-          retention-days: 14
+          if-no-files-found: warn
 
       - name: Get build artifact URL
         id: build-artifact-url
@@ -121,7 +127,6 @@ jobs:
 
             **Liens Utiles:**
             - [Télécharger la build](${{ env.BUILD_ARTIFACT_URL }})
-            - [Télécharger les logs](${{ env.LOGS_ARTIFACT_URL }})
             - [Détails du workflow](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})
           embed-color: ${{ env.COLOR }}
           embed-footer-text: "Team 1 PFE - Build générée le ${{ env.START_TIME }}"
@@ -129,11 +134,12 @@ jobs:
       - name: Caching
         uses: actions/cache@v3
         with:
-          path: path/to/your/project/Library
-          key: Library-MyProjectName-TargetPlatform
+          path: ${{ github.workspace }}/${{ env.PROJECT_NAME }}/Library  # Utilisation de la variable d'environnement
+          key: Library-${{ env.PROJECT_NAME }}-TargetPlatform  # Utilisation de la variable d'environnement
           restore-keys: |
-            Library-MyProjectName-
+            Library-${{ env.PROJECT_NAME }}-
             Library-
+        if: exists('${{ github.workspace }}/${{ env.PROJECT_NAME }}/Library')
 
       - name: Run a multi-line script
         run: |
