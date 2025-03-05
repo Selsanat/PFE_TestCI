@@ -41,7 +41,7 @@ jobs:
           embed-title: "Build Unity ${{ env.STATUS }}"
           embed-description: | 
             **Détails de la build:**
-            - **Nom:** PFE1-WIN-${{ github.run_id }}.${{ github.run_number }}.${{ github.run_attempt }}
+            - **Nom:** PFE1-WIN-0.${{ github.run_number }}.${{ github.run_attempt }}
             - **Plateforme:** StandaloneWindows64 
             - **Durée d'exécution:** ${{ steps.build-execution-time.outputs.duration }} secondes
             - **Code de sortie:** ${{ steps.project-build.outputs.engineExitCode }}
